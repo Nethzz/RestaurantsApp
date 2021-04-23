@@ -1,0 +1,25 @@
+{
+    "predictions": [
+        {
+            "description": "Chicago, IL, USA",
+            "id": "53eeb015d61056c54245a909c79862532fc953ad",
+            "place_id": "ChIJ7cv00DwsDogRAMDACa2m4K8"
+        },
+        {
+            "description": "China",
+            "id": "10bfe2265f06933baf8c2f1e35bf3bf132d74377",
+            "place_id": "ChIJwULG5WSOUDERbzafNHyqHZU"
+        },
+        {
+            "description": "Chihuahua, Mexico",
+            "id": "26f4ee675aa61f33dd0ffc296b582baf2e08fa3e",
+            "place_id": "ChIJM0BIXZ1E6oYRex3dBqen8bc"
+        },
+        {
+            "description": "Chile",
+            "id": "c33bb522167791f4bf271ef9151c1d13a1dd1092",
+            "place_id": "ChIJL68lBEHFYpYRHbkCERPhBQU"
+        }
+    ],
+    "status": "OK"
+}
