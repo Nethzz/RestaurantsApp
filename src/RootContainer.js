@@ -7,7 +7,10 @@ import {View, Alert,ImageBackground,
 import Routes from './config/routes';
 import {Container, Content} from 'native-base';
 var {height, width} = Dimensions.get('window');
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
 // import Routes from '../src/config/routes';
+
 export default class RootContainer extends Component {
   constructor() {
     super();
@@ -49,9 +52,9 @@ export default class RootContainer extends Component {
          </Container>
 :
       <View style={{flex: 1}}>
-        <Root>
+     <Provider store={store}>
         <Routes/>
-        </Root>
+        </Provider>
       </View>
     );
   }

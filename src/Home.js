@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, useEffect} from 'react';
 import {
   View,
   Text,
@@ -16,40 +16,39 @@ import {
 import {Container, Content} from 'native-base';
 var {height, width} = Dimensions.get('window');
 import {restaurants} from './utils/restaurants.json';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { CONSTANTS } from './config/constants';
+import {useSelector, useDispatch} from 'react-redux';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import {CONSTANTS} from './config/constants';
+import {resturantReducer} from './reducers/restaurantReducer';
+
 import axios from 'axios';
-const homePlace = {
-    description: 'Home',
-    geometry: { location: { lat: 48.8152937, lng: 2.4597668 } },
-    description: 'Home1',
-    geometry: { location: { lat: 48.8152937, lng: 2.4597668 } },
-  };
-  const workPlace = {
-    description: 'Work',
-    geometry: { location: { lat: 48.8496818, lng: 2.2940881 } },
-  };
- 
- const APPKEY = "AIzaSyBfwBev_Fjc_7mezszDk1gWyqlfImkAYtE";
+import {getRestaurant} from './redux/actions';
+
+function ResturantList() {
+  const {restaurant} = useSelector(state => state.resturantReducer);
+  const dispatch = useDispatch();
+  const fetchRestaurants = () => dispatch(getRestaurant());
+  useEffect(() => {
+    fetchRestaurants();
+  }, []);
+  //...
+}
 
 const MAP_KEY = CONSTANTS.MAP_KEY;
 export default class Home extends Component {
   constructor() {
     super();
     this.state = {
-        searchKeyword: '',
-        searchResults: [],
-        isShowingResults: false,
-        searchModalVisible:false,
-        address:''
+      searchKeyword: '',
+      searchResults: [],
+      isShowingResults: false,
+      searchModalVisible: false,
+      address: '',
     };
-    
   }
 
- 
   componentDidMount() {
-   
-    console.log('res list json', restaurants);
+    console.log(ResturantList);
     this.setState({
         searchResults:restaurants.latlng
     })
@@ -63,16 +62,10 @@ export default class Home extends Component {
   }
 
   searchData(address) {
-    const newData = this.arrayholder.filter((item) => {
-      const itemData = item.country_name.toUpperCase();
-      const textData = countryText.toUpperCase();
-      return itemData.indexOf(textData) > -1;
-    });
+    // const newData = restaurants.filter(item => {
+    //   const itemData = item.address.toUpperCase();
+    // });
 
-    this.setState({
-      countryList: newData,
-      countryText: countryText,
-    });
   }
 
   searchModal = () => {
@@ -136,15 +129,9 @@ export default class Home extends Component {
                 <TouchableOpacity
                   style={{right: 0, position: 'absolute'}}
                   onPress={() => {
-                    const newData = this.arrayholder.filter((item) => {
-                      const itemData = item.country_name.toUpperCase();
-                      return itemData;
-                    });
-
+                 
                     this.setState({
                       searchModalVisible: false,
-                      countryList: newData,
-                      countryText: '',
                     });
                   }}>
                   <Text style={{color: '#3EB511', fontSize: 24, padding: 15}}>
@@ -182,12 +169,10 @@ export default class Home extends Component {
                     }}>
                     <TextInput
                       style={{width: '100%', paddingStart: 12}}
-                      onChangeText={(address) =>
-                        this.searchData(address)
-                      }
+                      onChangeText={address => this.searchData(address)}
                       value={this.state.address}
                       underlineColorAndroid="transparent"
-                      placeholder={ 'Search Here...  ' }
+                      placeholder={'Search Here...  '}
                     />
                   </View>
 
@@ -220,7 +205,6 @@ export default class Home extends Component {
     );
   };
 
-
   render() {
     return (
       <Container>
@@ -228,95 +212,78 @@ export default class Home extends Component {
           <Text style={style.headerText}>Restaurants</Text>
         </View>
         <Content showsVerticalScrollIndicator={false}>
-
-        <GooglePlacesAutocomplete
-          placeholder="Search"
-           minLength={2} // minimum length of text to search
-          autoFocus={false}
-          returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-          listViewDisplayed="auto" // true/false/undefined
-          fetchDetails={true}
-          renderDescription={row => row.lat} // custom description render
-          onPress={(data, details = null) => {
-            console.log("data",data);
-            console.log("details",details);
-          }}
-          getDefaultValue={() => {
-            return ''; // text input default value
-          }}
-          query={{
-            // available options: https://developers.google.com/places/web-service/autocomplete
-            key: 'AIzaSyAGF8cAOPFPIKCZYqxuibF9xx5XD4JBb84',
-            language: 'en', // language of the results
-            types: '(cities)', // default: 'geocode'
-          }}
-          styles={{
-            description: {
-              fontWeight: 'bold',
-            },
-            predefinedPlacesDescription: {
-              color: '#1faadb',
-            },
-          }}
-          currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
-          currentLocationLabel="Current location"
-          nearbyPlacesAPI="GooglePlacesSearch" // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
-          GoogleReverseGeocodingQuery={{
-            // available options for GoogleReverseGeocoding API : https://developers.google.com/maps/documentation/geocoding/intro
-          }}
-          GooglePlacesSearchQuery={{
-            // available options for GooglePlacesSearch API : https://developers.google.com/places/web-service/search
-            rankby: 'distance',
-            types: 'food',
-          }}
-        //   filterReverseGeocodingByTypes={[
-        //     'locality',
-        //     'administrative_area_level_3',
-        //   ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
-          predefinedPlaces={this.state.searchResults}
-          debounce={200}
-        />
-        <View style={{marginStart:width/15, flexDirection:'row'}}>
-        <Image
-                source={require('./assets/icons/search.png')}
-                style={{width: 30, height: 30}}
-              />
-              <TouchableOpacity onPress={()=>{
-                   this.setState({
-                    searchModalVisible: true,
-                  });
-              }}>
-                  <Text style={{marginStart:8, fontSize:width/26,color: '#9A9A9A'}}> Search By Restaurants</Text>
-              </TouchableOpacity>
-        </View>
-{/*         
-          <View style={style.searchView}>
-            <TextInput
-              style={style.searchTxt}
-              onChangeText={searchText => {
-                this.setState(
-                  {
-                    // loader:true,
-                    searchText: searchText,
-                    page: 0,
-                  });
-              }}
-              value={this.state.searchText}
-              underlineColorAndroid="transparent"
+          <GooglePlacesAutocomplete
+            placeholder="Search"
+            minLength={2} // minimum length of text to search
+            autoFocus={false}
+            returnKeyType={'search'} // Can be left out for default return key https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
+            listViewDisplayed="auto" // true/false/undefined
+            fetchDetails={true}
+            renderDescription={row => row.lat} // custom description render
+            onPress={(data, details = null) => {
+              console.log('data', data);
+              console.log('details', details);
+            }}
+            getDefaultValue={() => {
+              return ''; // text input default value
+            }}
+            query={{
+              // available options: https://developers.google.com/places/web-service/autocomplete
+              key: 'AIzaSyAGF8cAOPFPIKCZYqxuibF9xx5XD4JBb84',
+              language: 'en', // language of the results
+              types: '(cities)', // default: 'geocode'
+            }}
+            styles={{
+              description: {
+                fontWeight: 'bold',
+              },
+              predefinedPlacesDescription: {
+                color: '#1faadb',
+              },
+            }}
+            currentLocation={true} // Will add a 'Current location' button at the top of the predefined places list
+            currentLocationLabel="Current location"
+            nearbyPlacesAPI="GooglePlacesSearch" // Which API to use: GoogleReverseGeocoding or GooglePlacesSearch
+            GoogleReverseGeocodingQuery={
+              {
+                // available options for GoogleReverseGeocoding API : https://developers.google.com/maps/documentation/geocoding/intro
+              }
+            }
+            GooglePlacesSearchQuery={{
+              // available options for GooglePlacesSearch API : https://developers.google.com/places/web-service/search
+              rankby: 'distance',
+              types: 'food',
+            }}
+            //   filterReverseGeocodingByTypes={[
+            //     'locality',
+            //     'administrative_area_level_3',
+            //   ]} // filter the reverse geocoding results by types - ['locality', 'administrative_area_level_3'] if you want to display only cities
+            predefinedPlaces={this.state.searchResults}
+            debounce={200}
+          />
+          <View style={{marginStart: width / 15, flexDirection: 'row'}}>
+            <Image
+              source={require('./assets/icons/search.png')}
+              style={{width: 30, height: 30}}
             />
-
-
-  
-
-
-            <View style={{position: 'absolute', right: width / 30}}>
-              <Image
-                source={require('./assets/icons/search.png')}
-                style={{width: 30, height: 30}}
-              />
-            </View>
-          </View> */}
-
+            <TouchableOpacity
+              onPress={() => {
+                this.setState({
+                  searchModalVisible: true,
+                });
+              }}>
+              <Text
+                style={{
+                  marginStart: 8,
+                  fontSize: width / 26,
+                  color: '#9A9A9A',
+                }}>
+                {' '}
+                Search By Restaurants
+              </Text>
+            </TouchableOpacity>
+          </View>
+         
           <FlatList
             style={style.listStyle}
             data={restaurants}
@@ -326,9 +293,9 @@ export default class Home extends Component {
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => {
-                    this.props.navigation.navigate('RestaurantDetails', {
-                     restaurantData:item,
-                    });
+                  this.props.navigation.navigate('RestaurantDetails', {
+                    restaurantData: item,
+                  });
                 }}
                 style={style.touchableStyle1}>
                 <View style={style.card1}>
